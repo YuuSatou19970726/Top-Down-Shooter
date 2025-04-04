@@ -11,6 +11,8 @@ namespace TopDownShooter
         public float verticalInput;
         [HideInInspector]
         public float horizontalInput;
+        [HideInInspector]
+        public bool isClick;
 
         private void Awake()
         {
@@ -21,12 +23,18 @@ namespace TopDownShooter
         private void Update()
         {
             this.AxisInput();
+            this.EventClick();
         }
 
         private void AxisInput()
         {
             this.verticalInput = Input.GetAxis(AxisTags.VERTICAL);
             this.horizontalInput = Input.GetAxis(AxisTags.HORIZONTAL);
+        }
+
+        private void EventClick()
+        {
+            this.isClick = Input.GetKeyDown(KeyCode.Mouse0);
         }
 
         public RaycastHit? GetAimTank(LayerMask layerMask)
