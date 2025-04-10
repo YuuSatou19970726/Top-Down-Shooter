@@ -7,6 +7,7 @@ namespace TopDownShooter
     {
         protected PlayerController controlls;
         protected CharacterController characterController;
+        private Animator animator;
 
         [Header("Movement Info")]
         [SerializeField] protected float walkSpeed;
@@ -33,6 +34,7 @@ namespace TopDownShooter
         {
             this.Movement();
             this.AimTowardsMouse();
+            this.AnimatorControllers();
         }
 
         protected override void OnEnable()
@@ -52,8 +54,9 @@ namespace TopDownShooter
 
         protected virtual void LoadComponent()
         {
-            if (this.characterController != null) return;
+            if (this.characterController != null && this.animator != null) return;
             this.characterController = GetComponent<CharacterController>();
+            this.animator = GetComponentInChildren<Animator>();
         }
 
         private void SetupInputController()
@@ -105,6 +108,15 @@ namespace TopDownShooter
 
                 this.aim.position = new Vector3(hit.point.x, transform.position.y, hit.point.z);
             }
+        }
+
+        private void AnimatorControllers()
+        {
+            float xVelocity = Vector3.Dot(this.movementDirection.normalized, transform.right);
+            float zVelocity = Vector3.Dot(this.movementDirection.normalized, transform.forward);
+
+            this.animator.SetFloat(AnimationTags.FLOAT_X_VELOCITY, xVelocity, 0.1f, Time.deltaTime);
+            this.animator.SetFloat(AnimationTags.FLOAT_Z_VELOCITY, zVelocity, 0.1f, Time.deltaTime);
         }
 
         private void Shoot()

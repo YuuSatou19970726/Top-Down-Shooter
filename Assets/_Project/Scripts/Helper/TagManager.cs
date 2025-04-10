@@ -10,4 +10,10 @@ namespace TopDownShooter
     {
         public const string BULLET = "Bullet";
     }
+
+    public class AnimationTags
+    {
+        public const string FLOAT_X_VELOCITY = "xVelocity";
+        public const string FLOAT_Z_VELOCITY = "zVelocity";
+    }
 }
