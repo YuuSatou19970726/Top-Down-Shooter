@@ -5,15 +5,18 @@ namespace TopDownShooter
 {
     public class PlayerMovement : CustomMonoBehaviour
     {
-        protected PlayerController controlls;
+        protected PlayerController controls;
         protected CharacterController characterController;
         private Animator animator;
 
         [Header("Movement Info")]
         [SerializeField] protected float walkSpeed;
+        [SerializeField] protected float runSpeed;
+        protected float speed;
         protected Vector3 movementDirection;
 
         private float verticalVelocity;
+        private bool isRunning;
         [SerializeField] private float gravityScale = 9.81f;
 
         [Header("Aim Info")]
@@ -27,7 +30,12 @@ namespace TopDownShooter
         protected override void Awake()
         {
             base.Awake();
-            this.SetupInputController();
+            this.AssignInputEvents();
+        }
+
+        protected override void Start()
+        {
+            this.speed = this.walkSpeed;
         }
 
         protected override void Update()
@@ -39,12 +47,12 @@ namespace TopDownShooter
 
         protected override void OnEnable()
         {
-            this.controlls.Enable();
+            this.controls.Enable();
         }
 
         protected override void OnDisable()
         {
-            this.controlls.Disable();
+            this.controls.Disable();
         }
 
         protected override void LoadComponents()
@@ -59,17 +67,27 @@ namespace TopDownShooter
             this.animator = GetComponentInChildren<Animator>();
         }
 
-        private void SetupInputController()
+        private void AssignInputEvents()
         {
-            this.controlls = new PlayerController();
-            this.controlls.Character.Fire.performed += context => this.Shoot();
+            this.controls = new PlayerController();
+            this.controls.Character.Fire.performed += context => this.Shoot();
 
-            this.controlls.Character.Movement.performed += context => this.moveInput = context.ReadValue<Vector2>();
-            this.controlls.Character.Movement.canceled += context => this.moveInput = Vector2.zero;
+            this.controls.Character.Movement.performed += context => this.moveInput = context.ReadValue<Vector2>();
+            this.controls.Character.Movement.canceled += context => this.moveInput = Vector2.zero;
 
-            this.controlls.Character.Aim.performed += context => this.aimInput = context.ReadValue<Vector2>();
-            this.controlls.Character.Aim.canceled += aimInput => this.aimInput = Vector2.zero;
+            this.controls.Character.Aim.performed += context => this.aimInput = context.ReadValue<Vector2>();
+            this.controls.Character.Aim.canceled += context => this.aimInput = Vector2.zero;
 
+            this.controls.Character.Run.performed += context =>
+            {
+                this.speed = this.runSpeed;
+                this.isRunning = true;
+            };
+            this.controls.Character.Run.canceled += context =>
+            {
+                this.speed = this.walkSpeed;
+                this.isRunning = false;
+            };
         }
 
         private void Movement()
@@ -79,7 +97,7 @@ namespace TopDownShooter
             this.Gravity();
 
             if (this.movementDirection.magnitude > 0)
-                this.characterController.Move(this.movementDirection * this.walkSpeed * Time.deltaTime);
+                this.characterController.Move(this.movementDirection * this.speed * Time.deltaTime);
 
         }
 
@@ -117,11 +135,14 @@ namespace TopDownShooter
 
             this.animator.SetFloat(AnimationTags.FLOAT_X_VELOCITY, xVelocity, 0.1f, Time.deltaTime);
             this.animator.SetFloat(AnimationTags.FLOAT_Z_VELOCITY, zVelocity, 0.1f, Time.deltaTime);
+
+            bool playRunAnimation = this.isRunning && this.movementDirection.magnitude > 0;
+            this.animator.SetBool(AnimationTags.BOOL_IS_RUNNING, playRunAnimation);
         }
 
         private void Shoot()
         {
-            Debug.Log("SHOOT!");
+            this.animator.SetTrigger(AnimationTags.TRIGGER_FIRE);
         }
     }
 }
