@@ -3,9 +3,11 @@ using UnityEngine;
 
 namespace TopDownShooter
 {
+    [RequireComponent(typeof(Player))]
     public class PlayerMovement : CustomMonoBehaviour
     {
-        protected PlayerController controls;
+        protected Player player;
+        private PlayerController controls;
         protected CharacterController characterController;
         private Animator animator;
 
@@ -30,12 +32,12 @@ namespace TopDownShooter
         protected override void Awake()
         {
             base.Awake();
-            this.AssignInputEvents();
         }
 
         protected override void Start()
         {
             this.speed = this.walkSpeed;
+            this.AssignInputEvents();
         }
 
         protected override void Update()
@@ -45,16 +47,6 @@ namespace TopDownShooter
             this.AnimatorControllers();
         }
 
-        protected override void OnEnable()
-        {
-            this.controls.Enable();
-        }
-
-        protected override void OnDisable()
-        {
-            this.controls.Disable();
-        }
-
         protected override void LoadComponents()
         {
             this.LoadComponent();
@@ -62,15 +54,15 @@ namespace TopDownShooter
 
         protected virtual void LoadComponent()
         {
-            if (this.characterController != null && this.animator != null) return;
+            if (this.player != null && this.characterController != null && this.animator != null) return;
+            this.player = GetComponent<Player>();
             this.characterController = GetComponent<CharacterController>();
             this.animator = GetComponentInChildren<Animator>();
         }
 
         private void AssignInputEvents()
         {
-            this.controls = new PlayerController();
-            this.controls.Character.Fire.performed += context => this.Shoot();
+            this.controls = this.player.controls;
 
             this.controls.Character.Movement.performed += context => this.moveInput = context.ReadValue<Vector2>();
             this.controls.Character.Movement.canceled += context => this.moveInput = Vector2.zero;
@@ -124,7 +116,7 @@ namespace TopDownShooter
 
                 transform.forward = this.lookingDirection;
 
-                this.aim.position = new Vector3(hit.point.x, transform.position.y, hit.point.z);
+                this.aim.position = new Vector3(hit.point.x, transform.position.y + 1, hit.point.z);
             }
         }
 
@@ -138,11 +130,6 @@ namespace TopDownShooter
 
             bool playRunAnimation = this.isRunning && this.movementDirection.magnitude > 0;
             this.animator.SetBool(AnimationTags.BOOL_IS_RUNNING, playRunAnimation);
-        }
-
-        private void Shoot()
-        {
-            this.animator.SetTrigger(AnimationTags.TRIGGER_FIRE);
         }
     }
 }
