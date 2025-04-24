@@ -17,5 +17,6 @@ namespace TopDownShooter
         public const string FLOAT_Z_VELOCITY = "zVelocity";
         public const string BOOL_IS_RUNNING = "isRunning";
         public const string TRIGGER_FIRE = "Fire";
+        public const string TRIGGER_RELOAD = "Reload";
     }
 }

@@ -1,9 +1,10 @@
 using TopDownShooter;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 namespace TopDownShooter
 {
-    public class WeaponVisualController : MonoBehaviour
+    public class WeaponVisualController : CustomMonoBehaviour
     {
         private Animator anim;
 
@@ -20,45 +21,34 @@ namespace TopDownShooter
         [Header("Left hand IK")]
         [SerializeField] private Transform leftHand;
 
-        private void Start()
+        [Header("Rig")]
+        [SerializeField] private float rigIncreaseStep;
+        private bool rigShouldBeIncreased;
+
+        private Rig rig;
+
+        protected override void Start()
         {
             this.SwitchOffGuns();
             this.SwitchOnGun(this.pistol);
-
-            this.anim = GetComponentInChildren<Animator>();
         }
 
-        private void Update()
+        protected override void Update()
         {
-            if (InputManager.Instance.isAlpha1)
-            {
-                this.SwitchOnGun(this.pistol);
-                this.SwitchAnimationLayer(1);
-            }
+            this.CheckWeaponSwitch();
+            this.CheckWeaponReload();
+            this.CheckEndReload();
+        }
 
-            if (InputManager.Instance.isAlpha2)
-            {
-                SwitchOnGun(this.revolver);
-                this.SwitchAnimationLayer(1);
-            }
+        protected override void LoadComponents()
+        {
+            this.LoadComponent();
+        }
 
-            if (InputManager.Instance.isAlpha3)
-            {
-                SwitchOnGun(this.autoFire);
-                this.SwitchAnimationLayer(1);
-            }
-
-            if (InputManager.Instance.isAlpha4)
-            {
-                SwitchOnGun(this.shotgun);
-                this.SwitchAnimationLayer(2);
-            }
-
-            if (InputManager.Instance.isAlpha5)
-            {
-                SwitchOnGun(this.rifle);
-                this.SwitchAnimationLayer(3);
-            }
+        protected void LoadComponent()
+        {
+            this.anim = GetComponentInChildren<Animator>();
+            this.rig = GetComponentInChildren<Rig>();
         }
 
         private void SwitchOnGun(Transform gunTransform)
@@ -91,6 +81,59 @@ namespace TopDownShooter
             }
 
             this.anim.SetLayerWeight(layerIndex, 1);
+        }
+
+        private void CheckWeaponSwitch()
+        {
+            if (InputManager.Instance.isAlpha1)
+            {
+                this.SwitchOnGun(this.pistol);
+                this.SwitchAnimationLayer(1);
+            }
+
+            if (InputManager.Instance.isAlpha2)
+            {
+                SwitchOnGun(this.revolver);
+                this.SwitchAnimationLayer(1);
+            }
+
+            if (InputManager.Instance.isAlpha3)
+            {
+                SwitchOnGun(this.autoFire);
+                this.SwitchAnimationLayer(1);
+            }
+
+            if (InputManager.Instance.isAlpha4)
+            {
+                SwitchOnGun(this.shotgun);
+                this.SwitchAnimationLayer(2);
+            }
+
+            if (InputManager.Instance.isAlpha5)
+            {
+                SwitchOnGun(this.rifle);
+                this.SwitchAnimationLayer(3);
+            }
+        }
+
+        private void CheckWeaponReload()
+        {
+            if (!InputManager.Instance.isKeyR) return;
+
+            this.anim.SetTrigger(AnimationTags.TRIGGER_RELOAD);
+            this.rig.weight = .15f;
+        }
+
+        public void ReturnRigWeigthToOne() => this.rigShouldBeIncreased = true;
+
+        private void CheckEndReload()
+        {
+            if (!this.rigShouldBeIncreased) return;
+
+            this.rig.weight += this.rigIncreaseStep * Time.deltaTime;
+
+            if (this.rig.weight >= 1)
+                this.rigShouldBeIncreased = false;
         }
     }
 }

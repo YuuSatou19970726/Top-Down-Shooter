@@ -14,7 +14,7 @@ namespace TopDownShooter
         [HideInInspector]
         public bool isClick;
         [HideInInspector]
-        public bool isAlpha1, isAlpha2, isAlpha3, isAlpha4, isAlpha5;
+        public bool isAlpha1, isAlpha2, isAlpha3, isAlpha4, isAlpha5, isKeyR, isKeyK;
 
         private void Awake()
         {
@@ -38,6 +38,8 @@ namespace TopDownShooter
             this.isAlpha3 = Input.GetKeyDown(KeyCode.Alpha3);
             this.isAlpha4 = Input.GetKeyDown(KeyCode.Alpha4);
             this.isAlpha5 = Input.GetKeyDown(KeyCode.Alpha5);
+            this.isKeyR = Input.GetKeyDown(KeyCode.R);
+            this.isKeyK = Input.GetKeyDown(KeyCode.K);
         }
 
         private void AssignClickEvent()
