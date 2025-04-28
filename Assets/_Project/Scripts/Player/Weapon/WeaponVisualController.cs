@@ -19,13 +19,18 @@ namespace TopDownShooter
         private Transform currentGun;
 
         [Header("Left hand IK")]
-        [SerializeField] private Transform leftHand;
+        [SerializeField] private TwoBoneIKConstraint leftHandIK;
+        [SerializeField] private Transform leftHandIK_Target;
+        [SerializeField] private float leftHandIK_IncreaseStep;
+        private bool shouldIncreaseLeftHandIKWeight;
 
         [Header("Rig")]
         [SerializeField] private float rigIncreaseStep;
         private bool rigShouldBeIncreased;
 
         private Rig rig;
+
+        private bool busyGrabbingWeapon;
 
         protected override void Start()
         {
@@ -37,7 +42,8 @@ namespace TopDownShooter
         {
             this.CheckWeaponSwitch();
             this.CheckWeaponReload();
-            this.CheckEndReload();
+            this.UpdateRigWigth();
+            this.UpdateLeftHandIKWeight();
         }
 
         protected override void LoadComponents()
@@ -69,8 +75,8 @@ namespace TopDownShooter
         private void AttachLeftHand()
         {
             Transform targetTransform = this.currentGun.GetComponentInChildren<LeftHandTargetTransform>().transform;
-            this.leftHand.localPosition = targetTransform.localPosition;
-            this.leftHand.localRotation = targetTransform.localRotation;
+            this.leftHandIK_Target.localPosition = targetTransform.localPosition;
+            this.leftHandIK_Target.localRotation = targetTransform.localRotation;
         }
 
         private void SwitchAnimationLayer(int layerIndex)
@@ -89,44 +95,55 @@ namespace TopDownShooter
             {
                 this.SwitchOnGun(this.pistol);
                 this.SwitchAnimationLayer(1);
+                this.PlayWeaponGrabAnimation(GrabType.SideGrab);
             }
 
             if (InputManager.Instance.isAlpha2)
             {
                 SwitchOnGun(this.revolver);
                 this.SwitchAnimationLayer(1);
+                this.PlayWeaponGrabAnimation(GrabType.SideGrab);
             }
 
             if (InputManager.Instance.isAlpha3)
             {
                 SwitchOnGun(this.autoFire);
                 this.SwitchAnimationLayer(1);
+                this.PlayWeaponGrabAnimation(GrabType.BackGrab);
             }
 
             if (InputManager.Instance.isAlpha4)
             {
                 SwitchOnGun(this.shotgun);
                 this.SwitchAnimationLayer(2);
+                this.PlayWeaponGrabAnimation(GrabType.BackGrab);
             }
 
             if (InputManager.Instance.isAlpha5)
             {
                 SwitchOnGun(this.rifle);
                 this.SwitchAnimationLayer(3);
+                this.PlayWeaponGrabAnimation(GrabType.BackGrab);
             }
         }
 
         private void CheckWeaponReload()
         {
-            if (!InputManager.Instance.isKeyR) return;
+            if (!InputManager.Instance.isKeyR || this.busyGrabbingWeapon) return;
 
             this.anim.SetTrigger(AnimationTags.TRIGGER_RELOAD);
+            this.PauseRig();
+        }
+
+        private void PauseRig()
+        {
             this.rig.weight = .15f;
         }
 
         public void ReturnRigWeigthToOne() => this.rigShouldBeIncreased = true;
+        public void ReturnWeigthToLeftHandIK() => this.shouldIncreaseLeftHandIKWeight = true;
 
-        private void CheckEndReload()
+        private void UpdateRigWigth()
         {
             if (!this.rigShouldBeIncreased) return;
 
@@ -134,6 +151,32 @@ namespace TopDownShooter
 
             if (this.rig.weight >= 1)
                 this.rigShouldBeIncreased = false;
+        }
+
+        private void PlayWeaponGrabAnimation(GrabType grabType)
+        {
+            this.leftHandIK.weight = 0;
+            this.PauseRig();
+            this.anim.SetFloat(AnimationTags.FLOAT_WEAPON_GRAB_TYPE, (float)grabType);
+            this.anim.SetTrigger(AnimationTags.TRIGGER_WEAPON_GRAB);
+
+            this.SetBusyGrabbingWeaponTo(true);
+        }
+
+        public void SetBusyGrabbingWeaponTo(bool busy)
+        {
+            this.busyGrabbingWeapon = busy;
+            this.anim.SetBool(AnimationTags.BOOL_BUSY_GRABBING_WEAPON, this.busyGrabbingWeapon);
+        }
+
+        private void UpdateLeftHandIKWeight()
+        {
+            if (!this.shouldIncreaseLeftHandIKWeight) return;
+
+            this.leftHandIK.weight += leftHandIK_IncreaseStep * Time.deltaTime;
+
+            if (this.leftHandIK.weight >= 1)
+                this.shouldIncreaseLeftHandIKWeight = false;
         }
     }
 }

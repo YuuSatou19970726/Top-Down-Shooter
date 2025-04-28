@@ -22,5 +22,17 @@ namespace TopDownShooter
 
             //refill-bullets
         }
+
+        public void WeaponGrabIsOver()
+        {
+            this.ReturnRig();
+            this.weaponVisualController.SetBusyGrabbingWeaponTo(false);
+        }
+
+        public void ReturnRig()
+        {
+            this.weaponVisualController.ReturnRigWeigthToOne();
+            this.weaponVisualController.ReturnWeigthToLeftHandIK();
+        }
     }
 }
