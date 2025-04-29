@@ -4,7 +4,7 @@ namespace TopDownShooter
 {
     public class PlayerAnimationEvents : CustomMonoBehaviour
     {
-        private WeaponVisualController weaponVisualController;
+        private PlayerWeaponVisuals playerWeaponVisuals;
 
         protected override void LoadComponents()
         {
@@ -13,12 +13,12 @@ namespace TopDownShooter
 
         private void LoadComponent()
         {
-            this.weaponVisualController = GetComponentInParent<WeaponVisualController>();
+            this.playerWeaponVisuals = GetComponentInParent<PlayerWeaponVisuals>();
         }
 
         public void ReloadIsOver()
         {
-            this.weaponVisualController.ReturnRigWeigthToOne();
+            this.playerWeaponVisuals.MaximizeRigWeight();
 
             //refill-bullets
         }
@@ -26,13 +26,13 @@ namespace TopDownShooter
         public void WeaponGrabIsOver()
         {
             this.ReturnRig();
-            this.weaponVisualController.SetBusyGrabbingWeaponTo(false);
+            this.playerWeaponVisuals.SetBusyGrabbingWeaponTo(false);
         }
 
         public void ReturnRig()
         {
-            this.weaponVisualController.ReturnRigWeigthToOne();
-            this.weaponVisualController.ReturnWeigthToLeftHandIK();
+            this.playerWeaponVisuals.MaximizeRigWeight();
+            this.playerWeaponVisuals.MaximizeLeftHandWeight();
         }
     }
 }

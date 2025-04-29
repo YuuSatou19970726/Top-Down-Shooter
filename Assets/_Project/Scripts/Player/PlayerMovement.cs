@@ -16,18 +16,11 @@ namespace TopDownShooter
         [SerializeField] protected float runSpeed;
         protected float speed;
         protected Vector3 movementDirection;
+        protected Vector2 moveInput;
 
         private float verticalVelocity;
         private bool isRunning;
         [SerializeField] private float gravityScale = 9.81f;
-
-        [Header("Aim Info")]
-        [SerializeField] private Transform aim;
-        [SerializeField] private LayerMask aimPlayerMask;
-        private Vector3 lookingDirection;
-
-        protected Vector2 moveInput;
-        protected Vector2 aimInput;
 
         protected override void Awake()
         {
@@ -43,7 +36,7 @@ namespace TopDownShooter
         protected override void Update()
         {
             this.Movement();
-            this.AimTowardsMouse();
+            this.ApplyRotation();
             this.AnimatorControllers();
         }
 
@@ -66,9 +59,6 @@ namespace TopDownShooter
 
             this.controls.Character.Movement.performed += context => this.moveInput = context.ReadValue<Vector2>();
             this.controls.Character.Movement.canceled += context => this.moveInput = Vector2.zero;
-
-            this.controls.Character.Aim.performed += context => this.aimInput = context.ReadValue<Vector2>();
-            this.controls.Character.Aim.canceled += context => this.aimInput = Vector2.zero;
 
             this.controls.Character.Run.performed += context =>
             {
@@ -104,20 +94,13 @@ namespace TopDownShooter
                 this.verticalVelocity = -.5f;
         }
 
-        private void AimTowardsMouse()
+        private void ApplyRotation()
         {
-            Ray ray = Camera.main.ScreenPointToRay(this.aimInput);
+            Vector3 lookingDirection = this.player.aim.GetMousePosition() - transform.position;
+            lookingDirection.y = 0f;
+            lookingDirection.Normalize();
 
-            if (Physics.Raycast(ray, out var hit, Mathf.Infinity, this.aimPlayerMask))
-            {
-                this.lookingDirection = hit.point - transform.position;
-                this.lookingDirection.y = 0f;
-                this.lookingDirection.Normalize();
-
-                transform.forward = this.lookingDirection;
-
-                this.aim.position = new Vector3(hit.point.x, transform.position.y + 1, hit.point.z);
-            }
+            transform.forward = lookingDirection;
         }
 
         private void AnimatorControllers()
