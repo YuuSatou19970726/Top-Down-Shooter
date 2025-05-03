@@ -78,7 +78,7 @@ namespace TopDownShooter
 
         protected void Shoot()
         {
-            if (!InputManager.Instance.isClick) return;
+            if (!InputManager.Instance.isLeftClick) return;
 
             GameObject bullet = Instantiate(this.bulletPrefab, this.gunPointTransform.position, this.gunPointTransform.rotation);
             bullet.GetComponent<Rigidbody>().linearVelocity = this.gunPointTransform.forward * this.bulletSpeed;

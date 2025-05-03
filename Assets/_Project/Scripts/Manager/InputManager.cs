@@ -12,9 +12,9 @@ namespace TopDownShooter
         [HideInInspector]
         public float horizontalInput;
         [HideInInspector]
-        public bool isClick;
+        public bool isLeftClick;
         [HideInInspector]
-        public bool isAlpha1, isAlpha2, isAlpha3, isAlpha4, isAlpha5, isKeyR, isKeyK;
+        public bool isAlpha1, isAlpha2, isAlpha3, isAlpha4, isAlpha5, isKeyR, isKeyK, isKeyP, isKeyL;
 
         private void Awake()
         {
@@ -40,11 +40,13 @@ namespace TopDownShooter
             this.isAlpha5 = Input.GetKeyDown(KeyCode.Alpha5);
             this.isKeyR = Input.GetKeyDown(KeyCode.R);
             this.isKeyK = Input.GetKeyDown(KeyCode.K);
+            this.isKeyP = Input.GetKeyDown(KeyCode.P);
+            this.isKeyL = Input.GetKeyDown(KeyCode.L);
         }
 
         private void AssignClickEvent()
         {
-            this.isClick = Input.GetKeyDown(KeyCode.Mouse0);
+            this.isLeftClick = Input.GetKeyDown(KeyCode.Mouse0);
         }
 
         public RaycastHit? GetAimTank(LayerMask layerMask)
@@ -55,7 +57,18 @@ namespace TopDownShooter
             if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
                 return hit;
 
-            return null;
+            return default;
+        }
+
+        public RaycastHit? GetAimPlayer(LayerMask layerMask, Vector2 aimInput)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(aimInput);
+
+            if (Physics.Raycast(ray, out var hit, Mathf.Infinity, layerMask))
+            {
+                return hit;
+            }
+            return default;
         }
     }
 }

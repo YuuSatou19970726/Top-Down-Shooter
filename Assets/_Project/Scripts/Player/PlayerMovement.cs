@@ -14,12 +14,13 @@ namespace TopDownShooter
         [Header("Movement Info")]
         [SerializeField] protected float walkSpeed;
         [SerializeField] protected float runSpeed;
+        [SerializeField] protected float turnSpeed;
         protected float speed;
+        public Vector2 moveInput { get; private set; } // read-only
         protected Vector3 movementDirection;
-        protected Vector2 moveInput;
-
         private float verticalVelocity;
         private bool isRunning;
+
         [SerializeField] private float gravityScale = 9.81f;
 
         protected override void Awake()
@@ -96,11 +97,14 @@ namespace TopDownShooter
 
         private void ApplyRotation()
         {
-            Vector3 lookingDirection = this.player.aim.GetMousePosition() - transform.position;
+            Vector3 lookingDirection = this.player.aim.GetMouseHitInfo().point - transform.position;
             lookingDirection.y = 0f;
             lookingDirection.Normalize();
 
-            transform.forward = lookingDirection;
+            // Smooth Rotation
+            if (lookingDirection == Vector3.zero) return;
+            Quaternion disiredRotation = Quaternion.LookRotation(lookingDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, disiredRotation, this.turnSpeed * Time.deltaTime);
         }
 
         private void AnimatorControllers()

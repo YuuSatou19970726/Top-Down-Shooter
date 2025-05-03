@@ -9,6 +9,8 @@ namespace TopDownShooter
     public class TagTags
     {
         public const string BULLET = "Bullet";
+        public const string PLAYER = "Player";
+        public const string AIM = "Aim";
     }
 
     public class AnimationTags
