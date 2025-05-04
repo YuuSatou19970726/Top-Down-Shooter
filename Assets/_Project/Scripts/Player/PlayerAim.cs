@@ -27,7 +27,7 @@ namespace TopDownShooter
         [SerializeField] private LayerMask aimPlayerMask;
 
         private Vector2 mouseInput;
-        private RaycastHit lastKnownMouseHit;
+        private RaycastHit lastKnownMouseHit = default;
 
         protected override void Start()
         {
@@ -49,7 +49,10 @@ namespace TopDownShooter
             Transform target = this.Target();
             if (target != null && this.isLockingToTarget)
             {
-                this.aim.position = target.position;
+                if (target.GetComponent<Renderer>() != null)
+                    this.aim.position = target.GetComponent<Renderer>().bounds.center;
+                else
+                    this.aim.position = target.position;
                 return;
             }
 

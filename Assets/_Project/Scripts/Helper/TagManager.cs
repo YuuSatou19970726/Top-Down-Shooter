@@ -25,4 +25,14 @@ namespace TopDownShooter
         public const string TRIGGER_WEAPON_GRAB = "WeaponGrab";
         public const string FLOAT_WEAPON_GRAB_TYPE = "WeaponGrabType";
     }
+
+    public class LayerTags
+    {
+        public const string GROUND = "Ground";
+        public const string OBSTACLES = "Obstacles";
+        public const string PLAYER = "Player";
+        public const string BULLET = "Bullet";
+        public const string AIM = "Aim";
+        public const string ENEMY = "Enemy";
+    }
 }

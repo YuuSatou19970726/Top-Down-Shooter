@@ -4,6 +4,9 @@ namespace TopDownShooter
 {
     public class PlayerWeaponController : CustomMonoBehaviour
     {
+        private const float REFERENCE_BULLET_SPEED = 20f;
+        // This is the default speed from which our mass fomular is derived.
+
         protected Player player;
 
         [SerializeField] private GameObject bulletPrefab;
@@ -28,7 +31,10 @@ namespace TopDownShooter
             GameObject newBullet =
                 Instantiate(this.bulletPrefab, this.gunPoint.position, Quaternion.LookRotation(this.gunPoint.forward));
 
-            newBullet.GetComponent<Rigidbody>().linearVelocity = this.BulletDirection() * this.bulletSpeed;
+            Rigidbody rbNewBullet = newBullet.GetComponent<Rigidbody>();
+            rbNewBullet.mass = REFERENCE_BULLET_SPEED / this.bulletSpeed;
+
+            rbNewBullet.linearVelocity = this.BulletDirection() * this.bulletSpeed;
             Destroy(newBullet, 10);
 
             GetComponentInChildren<Animator>().SetTrigger(AnimationTags.TRIGGER_FIRE);

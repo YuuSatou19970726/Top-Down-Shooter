@@ -9,6 +9,11 @@ namespace TopDownShooter
             this.LoadComponents();
         }
 
+        protected virtual void OnEnable()
+        {
+
+        }
+
         protected virtual void Start()
         {
 
@@ -24,19 +29,14 @@ namespace TopDownShooter
 
         }
 
-        protected virtual void Reset()
-        {
-            this.LoadComponents();
-        }
-
-        protected virtual void OnEnable()
-        {
-
-        }
-
         protected virtual void OnDisable()
         {
 
+        }
+
+        protected virtual void Reset()
+        {
+            this.LoadComponents();
         }
 
         protected virtual void LoadComponents()
