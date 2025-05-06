@@ -21,9 +21,10 @@ namespace TopDownShooter
         public const string BOOL_IS_RUNNING = "isRunning";
         public const string TRIGGER_FIRE = "Fire";
         public const string TRIGGER_RELOAD = "Reload";
-        public const string BOOL_BUSY_GRABBING_WEAPON = "BusyGrabbingWeapon";
-        public const string TRIGGER_WEAPON_GRAB = "WeaponGrab";
-        public const string FLOAT_WEAPON_GRAB_TYPE = "WeaponGrabType";
+        public const string TRIGGER_EQUIP_WEAPON = "EquipWeapon";
+        public const string FLOAT_EQUIP_TYPE = "EquipType";
+        public const string FLOAT_RELOAD_SPEED = "ReloadSpeed";
+        public const string FLOAT_EQUIP_SPEED = "EquipSpeed";
     }
 
     public class LayerTags

@@ -11,7 +11,7 @@ namespace TopDownShooter
 
         [Header("Aim control")]
         [SerializeField] private Transform aim;
-        [SerializeField] private bool isAimingPrecisly;
+        [SerializeField] private bool isAimingPrecisely;
         [SerializeField] private bool isLockingToTarget;
 
         [Header("Camera Control")]
@@ -36,7 +36,7 @@ namespace TopDownShooter
 
         protected override void Update()
         {
-            if (InputManager.Instance.isKeyP) this.isAimingPrecisly = !this.isAimingPrecisly;
+            if (InputManager.Instance.isKeyP) this.isAimingPrecisely = !this.isAimingPrecisely;
             if (InputManager.Instance.isKeyL) this.isLockingToTarget = !this.isLockingToTarget;
 
             this.UpdateAimVisuals();
@@ -58,16 +58,24 @@ namespace TopDownShooter
 
             this.aim.position = this.GetMouseHitInfo().point;
 
-            if (!this.isAimingPrecisly)
+            if (!this.isAimingPrecisely)
                 this.aim.position = new Vector3(this.aim.position.x, transform.position.y + 1, this.aim.position.z);
         }
 
         private void UpdateAimVisuals()
         {
+            this.aimLaser.enabled = this.player.weapon.WeaponReady();
+
+            if (this.aimLaser.enabled == false) return;
+
+            WeaponModel weaponModel = this.player.weaponVisuals.CurrentWeaponModel();
+            weaponModel.transform.LookAt(this.aim);
+            weaponModel.gunPoint.LookAt(this.aim);
+
             Transform gunPoint = this.player.weapon.GunPoint();
             Vector3 laserDirection = this.player.weapon.BulletDirection();
             float laserTipLenght = .5f;
-            float gunDistance = 4f;
+            float gunDistance = this.player.weapon.CurrentWeapon().gunDistance;
 
             this.aimLaser.SetPosition(0, gunPoint.position);
 
@@ -115,14 +123,16 @@ namespace TopDownShooter
 
         public Transform Aim() => this.aim;
 
-        public bool CanAimPrecisly() => this.isAimingPrecisly;
+        public bool CanAimPrecisly() => this.isAimingPrecisely;
 
         public Transform Target()
         {
             Transform target = null;
 
-            if (this.GetMouseHitInfo().transform.GetComponent<ObstacleTarget>() != null)
-                target = GetMouseHitInfo().transform;
+            if (this.GetMouseHitInfo().transform != null)
+                if (this.GetMouseHitInfo().transform.GetComponent<ObstacleTarget>() != null)
+                    target = GetMouseHitInfo().transform;
+
 
             return target;
         }

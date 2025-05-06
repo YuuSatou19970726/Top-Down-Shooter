@@ -14,12 +14,14 @@ namespace TopDownShooter
         [HideInInspector]
         public bool isLeftClick;
         [HideInInspector]
-        public bool isAlpha1, isAlpha2, isAlpha3, isAlpha4, isAlpha5, isKeyR, isKeyK, isKeyP, isKeyL;
+        public bool isAlpha1, isAlpha2, isAlpha3, isAlpha4, isAlpha5, isKeyR, isKeyK, isKeyP, isKeyL, isKeyT;
 
         private void Awake()
         {
             if (instance == null)
                 instance = this;
+            else
+                Destroy(gameObject);
         }
 
         private void Update()
@@ -42,6 +44,7 @@ namespace TopDownShooter
             this.isKeyK = Input.GetKeyDown(KeyCode.K);
             this.isKeyP = Input.GetKeyDown(KeyCode.P);
             this.isKeyL = Input.GetKeyDown(KeyCode.L);
+            this.isKeyT = Input.GetKeyDown(KeyCode.T);
         }
 
         private void AssignClickEvent()

@@ -5,6 +5,9 @@ namespace TopDownShooter
     public class PlayerAnimationEvents : CustomMonoBehaviour
     {
         private PlayerWeaponVisuals playerWeaponVisuals;
+        private PlayerWeaponController playerWeaponController;
+
+        public void SwitchOnWeaponModel() => this.playerWeaponVisuals.SwitchOnWeaponModel();
 
         protected override void LoadComponents()
         {
@@ -14,19 +17,20 @@ namespace TopDownShooter
         private void LoadComponent()
         {
             this.playerWeaponVisuals = GetComponentInParent<PlayerWeaponVisuals>();
+            this.playerWeaponController = GetComponentInParent<PlayerWeaponController>();
         }
 
         public void ReloadIsOver()
         {
             this.playerWeaponVisuals.MaximizeRigWeight();
+            this.playerWeaponController.CurrentWeapon().RefillBullets();
 
-            //refill-bullets
+            this.playerWeaponController.SetWeaponReady(true);
         }
 
-        public void WeaponGrabIsOver()
+        public void WeaponEquipingIsOver()
         {
-            this.ReturnRig();
-            this.playerWeaponVisuals.SetBusyGrabbingWeaponTo(false);
+            this.playerWeaponController.SetWeaponReady(true);
         }
 
         public void ReturnRig()

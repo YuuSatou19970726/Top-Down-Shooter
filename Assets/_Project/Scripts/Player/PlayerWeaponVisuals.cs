@@ -1,4 +1,3 @@
-using TopDownShooter;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
@@ -6,19 +5,11 @@ namespace TopDownShooter
 {
     public class PlayerWeaponVisuals : CustomMonoBehaviour
     {
+        private Player player;
         private Animator anim;
 
-        #region Gun transforms region
-        [SerializeField] private Transform[] gunTransforms;
-
-        [SerializeField] private Transform pistol;
-        [SerializeField] private Transform revolver;
-        [SerializeField] private Transform autoFire;
-        [SerializeField] private Transform shotgun;
-        [SerializeField] private Transform rifle;
-
-        private Transform currentGun;
-        #endregion
+        [SerializeField] private WeaponModel[] weaponModels;
+        [SerializeField] private BackupWeaponModel[] backupWeaponModels;
 
         [Header("Left hand IK")]
         [SerializeField] private float leftHandIKWeightIncreaseRate = 3f;
@@ -31,18 +22,15 @@ namespace TopDownShooter
         private bool shouldIncrease_RigWeight;
         private Rig rig;
 
-        private bool isGrabbingWeapon;
+        public void PlayerFireAnimation() => this.anim.SetTrigger(AnimationTags.TRIGGER_FIRE);
 
         protected override void Start()
         {
-            this.SwitchOffGuns();
-            this.SwitchOnGun(this.pistol);
+            this.SwitchOffWeaponModels();
         }
 
         protected override void Update()
         {
-            this.CheckWeaponSwitch();
-            this.CheckWeaponReload();
             this.UpdateRigWigth();
             this.UpdateLeftHandIKWeight();
         }
@@ -54,30 +42,35 @@ namespace TopDownShooter
 
         protected void LoadComponent()
         {
+            if (this.player != null && this.anim != null && this.rig != null && this.weaponModels.Length > 0) return;
+            this.player = GetComponent<Player>();
             this.anim = GetComponentInChildren<Animator>();
             this.rig = GetComponentInChildren<Rig>();
+            this.weaponModels = GetComponentsInChildren<WeaponModel>(true);
+            this.backupWeaponModels = GetComponentsInChildren<BackupWeaponModel>(true);
         }
 
-        private void SwitchOnGun(Transform gunTransform)
+        public void SwitchOnWeaponModel()
         {
-            this.SwitchOffGuns();
-            gunTransform.gameObject.SetActive(true);
-            this.currentGun = gunTransform;
+            int animationIndex = (int)this.CurrentWeaponModel().holdType;
+
+            this.SwitchOffWeaponModels();
+            this.SwitchOffBackupWeaponModels();
+
+            if (!this.player.weapon.HasOnlyOneWeapon())
+                this.SwitchOnBackupWeaponModel();
+
+            this.SwitchAnimationLayer(animationIndex);
+
+            this.CurrentWeaponModel().gameObject.SetActive(true);
 
             this.AttachLeftHand();
         }
 
-        private void SwitchOffGuns()
+        public void SwitchOffWeaponModels()
         {
-            for (int i = 0; i < this.gunTransforms.Length; i++)
-                this.gunTransforms[i].gameObject.SetActive(false);
-        }
-
-        private void AttachLeftHand()
-        {
-            Transform targetTransform = this.currentGun.GetComponentInChildren<LeftHandTargetTransform>().transform;
-            this.leftHandIK_Target.localPosition = targetTransform.localPosition;
-            this.leftHandIK_Target.localRotation = targetTransform.localRotation;
+            for (int i = 0; i < this.weaponModels.Length; i++)
+                this.weaponModels[i].gameObject.SetActive(false);
         }
 
         private void SwitchAnimationLayer(int layerIndex)
@@ -90,59 +83,93 @@ namespace TopDownShooter
             this.anim.SetLayerWeight(layerIndex, 1);
         }
 
-        private void CheckWeaponSwitch()
+        public void PlayReloadAnimation()
         {
-            if (InputManager.Instance.isAlpha1)
-            {
-                this.SwitchOnGun(this.pistol);
-                this.SwitchAnimationLayer(1);
-                this.PlayWeaponGrabAnimation(GrabType.SideGrab);
-            }
+            float reloadSpeed = this.player.weapon.CurrentWeapon().reloadSpeed;
 
-            if (InputManager.Instance.isAlpha2)
-            {
-                SwitchOnGun(this.revolver);
-                this.SwitchAnimationLayer(1);
-                this.PlayWeaponGrabAnimation(GrabType.SideGrab);
-            }
-
-            if (InputManager.Instance.isAlpha3)
-            {
-                SwitchOnGun(this.autoFire);
-                this.SwitchAnimationLayer(1);
-                this.PlayWeaponGrabAnimation(GrabType.BackGrab);
-            }
-
-            if (InputManager.Instance.isAlpha4)
-            {
-                SwitchOnGun(this.shotgun);
-                this.SwitchAnimationLayer(2);
-                this.PlayWeaponGrabAnimation(GrabType.BackGrab);
-            }
-
-            if (InputManager.Instance.isAlpha5)
-            {
-                SwitchOnGun(this.rifle);
-                this.SwitchAnimationLayer(3);
-                this.PlayWeaponGrabAnimation(GrabType.BackGrab);
-            }
-        }
-
-        private void CheckWeaponReload()
-        {
-            if (!InputManager.Instance.isKeyR || this.isGrabbingWeapon) return;
-
+            this.anim.SetFloat(AnimationTags.FLOAT_RELOAD_SPEED, reloadSpeed);
             this.anim.SetTrigger(AnimationTags.TRIGGER_RELOAD);
             this.ReduceRigWeight();
         }
 
-        private void ReduceRigWeight()
+        public void PlayWeaponEquipAnimation()
         {
-            this.rig.weight = .15f;
+            EquipType equipType = this.CurrentWeaponModel().equipAnimationType;
+
+            float equipmentAnimation = this.player.weapon.CurrentWeapon().equipmentSpeed;
+
+            this.leftHandIK.weight = 0;
+            this.ReduceRigWeight();
+            this.anim.SetFloat(AnimationTags.FLOAT_EQUIP_TYPE, (float)equipType);
+            this.anim.SetFloat(AnimationTags.FLOAT_EQUIP_SPEED, equipmentAnimation);
+            this.anim.SetTrigger(AnimationTags.TRIGGER_EQUIP_WEAPON);
         }
 
+        public WeaponModel CurrentWeaponModel()
+        {
+            WeaponModel weaponModel = null;
+
+            WeaponType weaponType = this.player.weapon.CurrentWeapon().weaponType;
+
+            for (int i = 0; i < this.weaponModels.Length; i++)
+            {
+                if (this.weaponModels[i].weaponType == weaponType)
+                    weaponModel = this.weaponModels[i];
+            }
+
+            return weaponModel;
+        }
+
+        private void SwitchOffBackupWeaponModels()
+        {
+            for (int i = 0; i < this.backupWeaponModels.Length; i++)
+                this.backupWeaponModels[i].Activate(false);
+        }
+
+        public void SwitchOnBackupWeaponModel()
+        {
+            this.SwitchOffBackupWeaponModels();
+
+            BackupWeaponModel lowHangWeapon = null;
+            BackupWeaponModel backHangWeapon = null;
+            BackupWeaponModel sideHangWeapon = null;
+
+            foreach (BackupWeaponModel backupWeaponModel in this.backupWeaponModels)
+            {
+                if (backupWeaponModel.weaponType == this.player.weapon.CurrentWeapon().weaponType)
+                    continue;
+
+                if (this.player.weapon.WeaponInSlots(backupWeaponModel.weaponType) != null)
+                {
+                    if (backupWeaponModel.HangTypeIs(HangType.LowBackHang))
+                        lowHangWeapon = backupWeaponModel;
+
+                    if (backupWeaponModel.HangTypeIs(HangType.BackHang))
+                        backHangWeapon = backupWeaponModel;
+
+                    if (backupWeaponModel.HangTypeIs(HangType.SideHang))
+                        sideHangWeapon = backupWeaponModel;
+                }
+            }
+
+            lowHangWeapon?.Activate(true);
+            backHangWeapon?.Activate(true);
+            sideHangWeapon?.Activate(true);
+        }
+
+        #region Animation Rigging Methods
         public void MaximizeRigWeight() => this.shouldIncrease_RigWeight = true;
         public void MaximizeLeftHandWeight() => this.shouldIncrease_LeftHandIKWeight = true;
+
+        private void UpdateLeftHandIKWeight()
+        {
+            if (!this.shouldIncrease_LeftHandIKWeight) return;
+
+            this.leftHandIK.weight += leftHandIKWeightIncreaseRate * Time.deltaTime;
+
+            if (this.leftHandIK.weight >= 1)
+                this.shouldIncrease_LeftHandIKWeight = false;
+        }
 
         private void UpdateRigWigth()
         {
@@ -154,30 +181,17 @@ namespace TopDownShooter
                 this.shouldIncrease_RigWeight = false;
         }
 
-        private void PlayWeaponGrabAnimation(GrabType grabType)
+        private void ReduceRigWeight()
         {
-            this.leftHandIK.weight = 0;
-            this.ReduceRigWeight();
-            this.anim.SetFloat(AnimationTags.FLOAT_WEAPON_GRAB_TYPE, (float)grabType);
-            this.anim.SetTrigger(AnimationTags.TRIGGER_WEAPON_GRAB);
-
-            this.SetBusyGrabbingWeaponTo(true);
+            this.rig.weight = .15f;
         }
 
-        public void SetBusyGrabbingWeaponTo(bool busy)
+        private void AttachLeftHand()
         {
-            this.isGrabbingWeapon = busy;
-            this.anim.SetBool(AnimationTags.BOOL_BUSY_GRABBING_WEAPON, this.isGrabbingWeapon);
+            Transform targetTransform = this.CurrentWeaponModel().holdPoint;
+            this.leftHandIK_Target.localPosition = targetTransform.localPosition;
+            this.leftHandIK_Target.localRotation = targetTransform.localRotation;
         }
-
-        private void UpdateLeftHandIKWeight()
-        {
-            if (!this.shouldIncrease_LeftHandIKWeight) return;
-
-            this.leftHandIK.weight += leftHandIKWeightIncreaseRate * Time.deltaTime;
-
-            if (this.leftHandIK.weight >= 1)
-                this.shouldIncrease_LeftHandIKWeight = false;
-        }
+        #endregion
     }
 }
