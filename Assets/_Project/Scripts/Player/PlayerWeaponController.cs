@@ -11,6 +11,7 @@ namespace TopDownShooter
 
         protected Player player;
 
+        [SerializeField] private WeaponData defaultWeaponData;
         [SerializeField] private Weapon currentWeapon;
         private bool weaponReady;
         private bool isShooting;
@@ -75,7 +76,7 @@ namespace TopDownShooter
         {
             this.currentWeapon.bulletsInMagazine--;
 
-            GameObject newBullet = ObjectPool.Instance.GetBullet();
+            GameObject newBullet = ObjectPool.Instance.GetObject(bulletPrefab);
             if (newBullet == null) return;
 
             // Instantiate(this.bulletPrefab, this.gunPoint.position, Quaternion.LookRotation(this.gunPoint.forward));
@@ -111,6 +112,7 @@ namespace TopDownShooter
 
         private void EquipStartingWeapon()
         {
+            weaponSlots[0] = new Weapon(this.defaultWeaponData);
             this.EquipWeapon(0);
         }
 
@@ -165,10 +167,11 @@ namespace TopDownShooter
             this.EquipWeapon(0);
         }
 
-        public void PickupWeapon(Weapon newWeapon)
+        public void PickupWeapon(WeaponData newWeaponData)
         {
             if (this.weaponSlots.Count >= this.maxSlots) return;
 
+            Weapon newWeapon = new Weapon(newWeaponData);
             this.weaponSlots.Add(newWeapon);
 
             this.player.weaponVisuals.SwitchOnBackupWeaponModel();

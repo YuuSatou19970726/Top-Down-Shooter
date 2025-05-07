@@ -8,10 +8,9 @@ namespace TopDownShooter
         private static ObjectPool instance;
         public static ObjectPool Instance => instance;
 
-        [SerializeField] private GameObject bulletPrefab;
         [SerializeField] private int poolSize = 10;
 
-        private Queue<GameObject> bulletPool = new Queue<GameObject>();
+        private Dictionary<GameObject, Queue<GameObject>> poolDictionary = new Dictionary<GameObject, Queue<GameObject>>();
 
         private void Awake()
         {
@@ -21,43 +20,59 @@ namespace TopDownShooter
                 Destroy(gameObject);
         }
 
-        private void Start()
+        private void InitializeNewPool(GameObject prefab)
         {
-            this.CreateInitialPool();
-        }
+            this.poolDictionary[prefab] = new Queue<GameObject>();
 
-        private void CreateInitialPool()
-        {
             for (int i = 0; i < this.poolSize; i++)
             {
-                CreateNewBullet();
+                this.CreateNewObject(prefab);
             }
         }
 
-        private void CreateNewBullet()
+        private void CreateNewObject(GameObject prefab)
         {
-            GameObject newBullet = Instantiate(this.bulletPrefab, transform);
-            newBullet.SetActive(false);
-            this.bulletPool.Enqueue(newBullet);
+            GameObject newObject = Instantiate(prefab, transform);
+            newObject.AddComponent<PooledObject>().originalPrefab = prefab;
+            newObject.SetActive(false);
+
+            this.poolDictionary[prefab].Enqueue(newObject);
         }
 
-        public GameObject GetBullet()
+        public GameObject GetObject(GameObject prefab)
         {
-            if (this.bulletPool.Count == 0)
-                this.CreateNewBullet();
+            if (!this.poolDictionary.ContainsKey(prefab))
+            {
+                InitializeNewPool(prefab);
+            }
 
-            GameObject bulletToGet = this.bulletPool.Dequeue();
-            bulletToGet.SetActive(true);
-            bulletToGet.transform.parent = null;
+            // If all objects of this type are in use, create a new one.
+            if (this.poolDictionary[prefab].Count == 0)
+                this.CreateNewObject(prefab);
 
-            return bulletToGet;
+            GameObject objectToGet = this.poolDictionary[prefab].Dequeue();
+            objectToGet.SetActive(true);
+            objectToGet.transform.parent = null;
+
+            return objectToGet;
         }
 
-        public void ReturnBullet(GameObject bullet)
+        private void ReturnToPool(GameObject objectToReturn)
         {
-            bullet.SetActive(false);
-            this.bulletPool.Enqueue(bullet);
-            bullet.transform.parent = transform;
+            objectToReturn.SetActive(false);
+            objectToReturn.transform.parent = transform;
+
+            GameObject originalPrefab = objectToReturn.GetComponent<PooledObject>().originalPrefab;
+            this.poolDictionary[originalPrefab].Enqueue(objectToReturn);
         }
+
+        private IEnumerator DelayReturn(float delay, GameObject objectToReturn)
+        {
+            yield return new WaitForSeconds(delay);
+
+            this.ReturnToPool(objectToReturn);
+        }
+
+        public void ReturnObject(GameObject objectToReturn, float delay = .001f) => StartCoroutine(this.DelayReturn(delay, objectToReturn));
     }
 }

@@ -5,46 +5,72 @@ namespace TopDownShooter
     [System.Serializable]
     public class Weapon
     {
-        public WeaponType weaponType;
-
         [Header("Magazine details")]
         public int bulletsInMagazine;
         public int magazineCapacity;
         public int totalReserveAmmo;
 
-        // How fast character reloads weapon
-        [Range(1, 3)]
-        public float reloadSpeed = 1f;
+        #region Burst mode variables
+        private bool burstAvalible;
+        private bool burstActive;
+        private int burstBulletsPerShot;
+        private float burstFireRate;
+        public float burstFireDelay { get; private set; }
+        #endregion
 
-        // How fast character equips weapon
-        [Range(1, 3)]
-        public float equipmentSpeed = 1f;
-        [Range(2, 12)]
-        public float gunDistance = 4f;
-        [Range(3, 8)]
-        public float cameraDistance = 6f;
-
-        [Header("Shooting spesifics")]
-        public ShootType shootType;
-        public int bulletsPerShot;
-        public float defaultFireRate;
-        public float fireRate = 1f; // bullets per second
-        private float lastShootTime;
-
-        [Header("Spread")]
-        public float baseSpread = 1f;
-        public float maximumSpread = 3f;
+        #region Spread variables
+        private float baseSpread = 1f;
+        private float maximumSpread = 3f;
         private float currentSpread = 1f;
-        public float spreadIncreaseRate = .15f;
+        private float spreadIncreaseRate = .15f;
         private float lastSpreadUpdateTime;
         private float spreadCooldown = 1f;
+        #endregion
 
-        [Header("Burst fire")]
-        public bool burstAvalible;
-        public bool burstActive;
-        public int burstBulletsPerShot;
-        public float burstFireRate;
-        public float burstFireDelay = .1f;
+        #region Generics info
+        public WeaponType weaponType;
+        public float reloadSpeed { get; private set; } // How fast character reloads weapon
+        public float equipmentSpeed { get; private set; } // How fast character equips weapon
+        public float gunDistance { get; private set; }
+        public float cameraDistance { get; private set; }
+        #endregion
+
+        #region Regular mode variables 
+        public ShootType shootType;
+        public int bulletsPerShot { get; private set; }
+        private float fireRate = 1f; // bullets per second
+        private float defaultFireRate;
+        private float lastShootTime;
+        #endregion
+
+        public Weapon(WeaponData data)
+        {
+            this.bulletsInMagazine = data.bulletsInMagazine;
+            this.magazineCapacity = data.magazineCapacity;
+            this.totalReserveAmmo = data.totalReserveAmmo;
+
+            this.burstAvalible = data.burstAvalible;
+            this.burstActive = data.burstActive;
+            this.burstBulletsPerShot = data.burstBulletsPerShot;
+            this.burstFireRate = data.burstFireRate;
+            this.burstFireDelay = data.burstFireDelay;
+
+            this.baseSpread = data.baseSpread;
+            this.maximumSpread = data.maximumSpread;
+            this.spreadIncreaseRate = data.spreadIncreaseRate;
+            this.spreadCooldown = data.spreadCooldown;
+
+            this.weaponType = data.weaponType;
+            this.reloadSpeed = data.reloadSpeed;
+            this.equipmentSpeed = data.equipmentSpeed;
+            this.gunDistance = data.gunDistance;
+            this.cameraDistance = data.cameraDistance;
+
+            this.shootType = data.shootType;
+            this.fireRate = data.fireRate;
+            this.defaultFireRate = this.fireRate;
+            this.bulletsPerShot = data.bulletsPerShot;
+        }
 
         #region Shoot methods
         public bool CanShoot() => this.HaveEnoughBullets() && this.ReadyToFire();

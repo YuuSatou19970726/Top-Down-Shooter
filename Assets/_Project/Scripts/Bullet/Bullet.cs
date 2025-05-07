@@ -26,7 +26,7 @@ public class Bullet : MonoBehaviour
     {
         this.FadeTrail();
         this.DisableBullet();
-        this.ReturnBulletToPool();
+        this.CheckReturnBulletToPool();
     }
 
     private void FadeTrail()
@@ -45,10 +45,10 @@ public class Bullet : MonoBehaviour
         }
     }
 
-    private void ReturnBulletToPool()
+    private void CheckReturnBulletToPool()
     {
         if (this.trailRenderer.time < 0)
-            ObjectPool.Instance.ReturnBullet(gameObject);
+            this.ReturnBulletToPool();
     }
 
     void OnCollisionEnter(Collision collision)
@@ -56,8 +56,10 @@ public class Bullet : MonoBehaviour
         // this.rb.constraints = RigidbodyConstraints.FreezeAll;
         CreateImpactFX(collision);
 
-        ObjectPool.Instance.ReturnBullet(gameObject);
+        this.ReturnBulletToPool();
     }
+
+    private void ReturnBulletToPool() => ObjectPool.Instance.ReturnObject(gameObject);
 
     private void CreateImpactFX(Collision collision)
     {
@@ -65,10 +67,12 @@ public class Bullet : MonoBehaviour
         {
             ContactPoint contact = collision.GetContact(0);
 
-            GameObject newImpactFX =
-                Instantiate(this.bulletImpactFX, contact.point, Quaternion.LookRotation(contact.normal));
+            GameObject newImpactFX = ObjectPool.Instance.GetObject(this.bulletImpactFX);
+            // Instantiate(this.bulletImpactFX, contact.point, Quaternion.LookRotation(contact.normal));
+            newImpactFX.transform.position = contact.point;
+            newImpactFX.transform.rotation = Quaternion.LookRotation(contact.normal);
 
-            Destroy(newImpactFX, 1f);
+            ObjectPool.Instance.ReturnObject(newImpactFX, 1f);
         }
     }
 

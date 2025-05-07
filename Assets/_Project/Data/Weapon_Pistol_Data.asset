@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cb79bc1852a5184caf1040f72824875, type: 3}
+  m_Name: Weapon_Pistol_Data
+  m_EditorClassIdentifier: 
+  weaponName: TVT F47
+  bulletsInMagazine: 30
+  magazineCapacity: 30
+  totalReserveAmmo: 90
+  burstAvalible: 1
+  burstActive: 0
+  burstBulletsPerShot: 3
+  burstFireRate: 7
+  burstFireDelay: 0.1
+  baseSpread: 0.5
+  maximumSpread: 5
+  spreadIncreaseRate: 0.35
+  spreadCooldown: 1
+  weaponType: 0
+  reloadSpeed: 3
+  equipmentSpeed: 2
+  gunDistance: 4
+  cameraDistance: 6
+  shootType: 1
+  bulletsPerShot: 1
+  defaultFireRate: 0
+  fireRate: 10
