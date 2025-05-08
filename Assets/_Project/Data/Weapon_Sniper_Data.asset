@@ -13,10 +13,19 @@ MonoBehaviour:
   m_Name: Weapon_Sniper_Data
   m_EditorClassIdentifier: 
   weaponName: TRG S21
-  weaponType: 4
-  bulletsInMagazine: 0
+  bulletsInMagazine: 5
   magazineCapacity: 5
   totalReserveAmmo: 0
+  burstAvalible: 0
+  burstActive: 0
+  burstBulletsPerShot: 1
+  burstFireRate: 1
+  burstFireDelay: 0.1
+  baseSpread: 0.1
+  maximumSpread: 10
+  spreadIncreaseRate: 2.5
+  spreadCooldown: 1
+  weaponType: 4
   reloadSpeed: 1
   equipmentSpeed: 1
   gunDistance: 12
@@ -25,11 +34,3 @@ MonoBehaviour:
   bulletsPerShot: 1
   defaultFireRate: 50
   fireRate: 50
-  baseSpread: 0.1
-  maximumSpread: 10
-  spreadIncreaseRate: 2.5
-  burstAvalible: 0
-  burstActive: 0
-  burstBulletsPerShot: 1
-  burstFireRate: 1
-  burstFireDelay: 0.1

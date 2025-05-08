@@ -9,6 +9,7 @@ namespace TopDownShooter
         public PlayerMovement movement { get; private set; } // read-only
         public PlayerWeaponController weapon { get; private set; } // read-only
         public PlayerWeaponVisuals weaponVisuals { get; private set; } // read-only
+        public PlayerInteraction interaction { get; private set; } // read-only
 
         protected override void OnEnable()
         {
@@ -22,7 +23,8 @@ namespace TopDownShooter
 
         private void LoadComponent()
         {
-            if (this.controls != null && this.aim != null && this.movement != null && this.weapon != null && this.weaponVisuals != null)
+            if (this.controls != null && this.aim != null && this.movement != null && this.weapon != null && this.weaponVisuals != null
+                && this.interaction != null)
                 return;
 
             this.controls = new PlayerController();
@@ -30,6 +32,7 @@ namespace TopDownShooter
             this.movement = GetComponent<PlayerMovement>();
             this.weapon = GetComponent<PlayerWeaponController>();
             this.weaponVisuals = GetComponent<PlayerWeaponVisuals>();
+            this.interaction = GetComponent<PlayerInteraction>();
         }
 
         protected override void OnDisable()

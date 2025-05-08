@@ -15,7 +15,7 @@ MonoBehaviour:
   weaponName: TVT F47
   bulletsInMagazine: 30
   magazineCapacity: 30
-  totalReserveAmmo: 90
+  totalReserveAmmo: 0
   burstAvalible: 1
   burstActive: 0
   burstBulletsPerShot: 3

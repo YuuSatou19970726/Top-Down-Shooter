@@ -1,12 +1,14 @@
 using UnityEngine;
-
-public class TankFollow : MonoBehaviour
+namespace TopDownShooter
 {
-    [SerializeField] private Transform targetTransform;
-
-    private void Update()
+    public class TankFollow : MonoBehaviour
     {
-        transform.position =
-        new Vector3(this.targetTransform.transform.position.x, transform.position.y, this.targetTransform.transform.position.z - 5);
+        [SerializeField] private Transform targetTransform;
+
+        private void Update()
+        {
+            transform.position =
+            new Vector3(this.targetTransform.transform.position.x, transform.position.y, this.targetTransform.transform.position.z - 5);
+        }
     }
 }

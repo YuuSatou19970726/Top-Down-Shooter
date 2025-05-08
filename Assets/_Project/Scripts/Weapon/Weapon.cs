@@ -43,6 +43,9 @@ namespace TopDownShooter
         private float lastShootTime;
         #endregion
 
+        // serves as default weapon data
+        public WeaponData weaponData { get; private set; }
+
         public Weapon(WeaponData data)
         {
             this.bulletsInMagazine = data.bulletsInMagazine;
@@ -70,6 +73,8 @@ namespace TopDownShooter
             this.fireRate = data.fireRate;
             this.defaultFireRate = this.fireRate;
             this.bulletsPerShot = data.bulletsPerShot;
+
+            this.weaponData = data;
         }
 
         #region Shoot methods

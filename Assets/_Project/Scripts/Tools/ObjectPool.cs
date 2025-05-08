@@ -12,12 +12,22 @@ namespace TopDownShooter
 
         private Dictionary<GameObject, Queue<GameObject>> poolDictionary = new Dictionary<GameObject, Queue<GameObject>>();
 
+        [Header("To Initalize")]
+        [SerializeField] private GameObject weaponPickup;
+        [SerializeField] private GameObject ammoPickup;
+
         private void Awake()
         {
             if (instance == null)
                 instance = this;
             else
                 Destroy(gameObject);
+        }
+
+        void Start()
+        {
+            this.InitializeNewPool(this.weaponPickup);
+            this.InitializeNewPool(this.ammoPickup);
         }
 
         private void InitializeNewPool(GameObject prefab)

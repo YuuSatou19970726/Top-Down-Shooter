@@ -25,6 +25,7 @@ namespace TopDownShooter
         [Header("Inventory")]
         [SerializeField] private int maxSlots = 2;
         [SerializeField] private List<Weapon> weaponSlots;
+        [SerializeField] private GameObject weaponPickupPrefab;
 
         public Transform GunPoint() => this.player.weaponVisuals.CurrentWeaponModel().gunPoint;
         public Weapon CurrentWeapon() => this.currentWeapon;
@@ -161,17 +162,39 @@ namespace TopDownShooter
         private void DropWeapon()
         {
             if (this.HasOnlyOneWeapon()) return;
+            CreateWeaponOnTheGround();
 
             this.weaponSlots.Remove(this.currentWeapon);
 
             this.EquipWeapon(0);
         }
 
-        public void PickupWeapon(WeaponData newWeaponData)
+        private void CreateWeaponOnTheGround()
         {
-            if (this.weaponSlots.Count >= this.maxSlots) return;
+            GameObject droppedWeapon = ObjectPool.Instance.GetObject(this.weaponPickupPrefab);
+            droppedWeapon.GetComponent<PickupWeapon>()?.SetupPickupWeapon(this.currentWeapon, transform);
+        }
 
-            Weapon newWeapon = new Weapon(newWeaponData);
+        public void PickupWeapon(Weapon newWeapon)
+        {
+            if (this.WeaponInSlots(newWeapon.weaponType) != null)
+            {
+                this.WeaponInSlots(newWeapon.weaponType).totalReserveAmmo += newWeapon.bulletsInMagazine;
+                return;
+            }
+
+            if (this.weaponSlots.Count >= this.maxSlots && newWeapon.weaponType != currentWeapon.weaponType)
+            {
+                int weaponIndex = weaponSlots.IndexOf(currentWeapon);
+
+                this.player.weaponVisuals.SwitchOffWeaponModels();
+                weaponSlots[weaponIndex] = newWeapon;
+
+                this.CreateWeaponOnTheGround();
+                this.EquipWeapon(weaponIndex);
+                return;
+            }
+
             this.weaponSlots.Add(newWeapon);
 
             this.player.weaponVisuals.SwitchOnBackupWeaponModel();

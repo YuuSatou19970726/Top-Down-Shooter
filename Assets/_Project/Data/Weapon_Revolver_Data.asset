@@ -10,27 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cb79bc1852a5184caf1040f72824875, type: 3}
-  m_Name: Weapon_Shotgun_Data
+  m_Name: Weapon_Revolver_Data
   m_EditorClassIdentifier: 
-  weaponName: FBF SG7
-  bulletsInMagazine: 15
-  magazineCapacity: 15
+  weaponName: DRG H13
+  bulletsInMagazine: 6
+  magazineCapacity: 6
   totalReserveAmmo: 0
-  burstAvalible: 1
+  burstAvalible: 0
   burstActive: 0
-  burstBulletsPerShot: 5
-  burstFireRate: 1.5
-  burstFireDelay: 0.3
-  baseSpread: 15
-  maximumSpread: 15
-  spreadIncreaseRate: 0
+  burstBulletsPerShot: 1
+  burstFireRate: 10
+  burstFireDelay: 0.1
+  baseSpread: 0.1
+  maximumSpread: 3
+  spreadIncreaseRate: 0.5
   spreadCooldown: 1
-  weaponType: 3
-  reloadSpeed: 1.5
-  equipmentSpeed: 1.5
-  gunDistance: 3
-  cameraDistance: 4
+  weaponType: 1
+  reloadSpeed: 3
+  equipmentSpeed: 3
+  gunDistance: 4
+  cameraDistance: 6
   shootType: 0
-  bulletsPerShot: 3
-  defaultFireRate: 5
-  fireRate: 5
+  bulletsPerShot: 1
+  defaultFireRate: 50
+  fireRate: 50

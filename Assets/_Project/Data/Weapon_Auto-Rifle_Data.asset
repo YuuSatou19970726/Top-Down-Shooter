@@ -15,7 +15,7 @@ MonoBehaviour:
   weaponName: WAR AR4
   bulletsInMagazine: 25
   magazineCapacity: 25
-  totalReserveAmmo: 100
+  totalReserveAmmo: 0
   burstAvalible: 1
   burstActive: 0
   burstBulletsPerShot: 5
